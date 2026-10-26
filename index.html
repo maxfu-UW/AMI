@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Huilong (Max) Fu">
+<title>AMI · Additive Manufacturing Intelligence</title>
+<meta name="description" content="AMI learns how additive-manufacturing process settings drive the properties of printed parts and predicts them with uncertainty.">
+<link rel="icon" href="assets/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #17202a; --muted: #586574; --faint: #8A96A3; --line: #E3E8EC; --bg: #F4F6F8; --card: #FFFFFF;
+  --purple: #4b2e83; --night: #241a3d; --night2: #33275a; --gold: #D3BF86; --lavender: #ECE8F6;
+  --c1: #146082; --c2: #186B24; --c3: #0E9ED5; --c4: #A02B93; --cp: #E97132;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.6 "IBM Plex Sans", system-ui, sans-serif; }
+h1, h2, h3 { font-family: "IBM Plex Sans Condensed", "IBM Plex Sans", sans-serif; line-height: 1.15; margin: 0; }
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--purple); }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+
+/* header: the app's side bar, purple night with the gold AMI */
+.hero { background: radial-gradient(1200px 500px at 85% -10%, #3b2c68 0%, var(--night) 60%); color: var(--lavender); }
+.hero .wrap { padding-top: 56px; padding-bottom: 64px; }
+.brand { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.brand img { width: 220px; height: auto; }
+.brand .tag { font: 600 15px/1.3 "IBM Plex Sans Condensed", sans-serif; color: var(--gold); letter-spacing: .02em; }
+.hero h1 { margin-top: 40px; font-size: clamp(34px, 5.2vw, 58px); color: #FFFFFF; font-weight: 700; max-width: 18ch; }
+.hero .lead { margin: 18px 0 0; max-width: 62ch; font-size: 19px; color: #D9D3EA; }
+.hero .byline { margin: 12px 0 0; font-size: 16px; color: #BDB3DB; } .hero .byline b { color: var(--gold); font-weight: 600; }
+/* the hero's right: Reachy Mini and its twin on the night purple, credited (CC BY-NC-SA) */
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr); align-items: center; gap: 12px 40px; }
+.hero-art { margin: 0; }
+.hero-art img { width: 100%; max-width: 500px; margin: 0 auto; }
+.hero-art figcaption { max-width: 500px; margin: 6px auto 0; font-size: 12.5px; line-height: 1.5; color: #A99FC9; }
+.hero-art figcaption a { color: inherit; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+.chips span { border: 1px solid #5A4A8C; color: #E4DEF4; padding: 4px 12px; border-radius: 999px; font-size: 14px; }
+
+section { padding: 56px 0 8px; }
+.eyebrow { font: 600 13px/1 "IBM Plex Sans", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+section h2 { font-size: clamp(26px, 3.4vw, 34px); margin-top: 10px; }
+section .intro { color: var(--muted); max-width: 70ch; margin: 10px 0 0; }
+
+/* the five stages, in their colours from the app's stage strip */
+.stages { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin-top: 26px; }
+@media (max-width: 1080px) { .stages { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.stage { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px 20px 22px;
+  border-top: 4px solid var(--c); box-shadow: 0 1px 2px rgba(16, 24, 40, .04); }
+.stage .n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--c);
+  color: #fff; font: 600 14px/1 "IBM Plex Sans", sans-serif; }
+.stage h3 { font-size: 22px; margin: 12px 0 6px; }
+.stage p { margin: 0; color: var(--muted); font-size: 15.5px; }
+
+/* a Reachy Mini part sliced and played back as a slicer's preview (CC BY-NC-SA), first under the hero (user,
+   2026-10-26, marked-up site: the card arrowed up above Workflow, its "1" struck out) */
+.feature { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: center; gap: 8px;
+  margin: 44px 0 0; background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--c); border-radius: 16px;
+  overflow: hidden; box-shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 10px 26px rgba(16, 24, 40, .06); }
+.feature video { width: 100%; height: auto; display: block; aspect-ratio: 1200 / 750; background: #F2F3F4; }
+.feature figcaption { padding: 24px 32px 24px 12px; }
+.feature h3 { font-size: 24px; margin: 0 0 8px; }
+.feature p { margin: 0; color: var(--muted); font-size: 15.5px; }
+.feature .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 12px 0 0; padding: 0; list-style: none;
+  font-size: 14px; color: var(--muted); }
+.feature .legend li::before { content: ""; display: inline-block; width: 11px; height: 11px; border-radius: 3px;
+  background: var(--k); margin-right: 6px; vertical-align: -1px; }
+.feature .credit { margin-top: 14px; font-size: 13px; line-height: 1.5; color: var(--faint); }
+.feature .credit a { color: inherit; }
+
+/* the AM methods */
+.methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-top: 26px; }
+.cat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+.cat h3 { font-size: 18px; }
+.cat .m { margin-top: 8px; font-size: 15px; }
+.cat .m b { font-weight: 600; }
+.cat .cls { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.cls span { font-size: 12.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; }
+.pol { background: #E6EEF6; color: #2F5373; } .com { background: #EEE8F7; color: #4B2E83; }
+.met { background: #E9ECEF; color: #3F4A55; } .cer { background: #F5EADC; color: #8A5A2B; }
+
+/* Demo3 */
+.demo { margin-top: 26px; max-width: 760px; }
+.demo .facts { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px 24px; }
+.demo .facts h3 { font-size: 22px; }
+.demo ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); }
+.demo li { margin: 4px 0; }
+
+footer { margin-top: 64px; background: var(--night); color: #CFC8E3; font-size: 14.5px; }
+footer .wrap { padding: 28px 24px 34px; display: flex; flex-wrap: wrap; gap: 10px 28px; justify-content: space-between; }
+footer b { color: var(--gold); font-weight: 600; }
+
+@media (max-width: 760px) {
+  body { font-size: 16px; }
+  .wrap { padding: 0 16px; }
+  .hero .wrap { padding-top: 36px; padding-bottom: 44px; }
+  .brand img { width: 170px; }
+  .demo, .hero-grid, .feature, .stages { grid-template-columns: 1fr; }
+  .feature figcaption { padding: 4px 18px 18px; }
+  .hero-art { margin-top: 26px; }
+  .hero-art img, .hero-art figcaption { max-width: 420px; }
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <img src="assets/ami-logo.png" alt="AMI" width="220" height="88">
+      <div class="tag">Additive Manufacturing Intelligence</div>
+    </div>
+    <div class="hero-grid">
+      <div>
+        <h1>From print settings to part performance</h1>
+        <p class="byline">Author: <b>Huilong (Max) Fu</b></p>
+        <p class="lead">AMI is a web app that learns how additive-manufacturing process settings drive the properties of
+          printed parts, and predicts them with their uncertainty: pre-trained on published data, refined with in-house
+          tests, then used to explore and optimize a process before anything is printed.</p>
+        <div class="chips"><span>Gaussian-process regression</span><span>Uncertainty quantification</span>
+          <span>Sobol sensitivity</span><span>Optimization</span><span>12 AM methods</span></div>
+      </div>
+      <figure class="hero-art">
+        <img src="assets/art/hero-reachy-mini.webp" alt="Reachy Mini, the open-source desktop robot, rendered from its CAD
+          files, beside a twin whose printed parts are coloured by an illustrative predicted field with contour lines"
+          width="917" height="836">
+        <figcaption>Reachy Mini and a twin whose printed parts carry an illustrative predicted field, not an AMI result.
+          <a href="https://github.com/pollen-robotics/reachy_mini">Reachy Mini</a> CAD © Pollen Robotics / Hugging Face,
+          licensed <a href="https://creativecommons.org/licenses/by-nc-sa/">CC BY-NC-SA</a>. Rendered in Blender for AMI,
+          the twin recoloured; this image is shared under the same licence.</figcaption>
+      </figure>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <figure class="feature" style="--c: var(--c1)">
+    <video src="assets/art/fdm-reachy-face.mp4" poster="assets/art/fdm-reachy-face-poster.webp" width="1200" height="750"
+      autoplay muted loop playsinline preload="metadata"
+      aria-label="Reachy Mini's face plate printed layer by layer, its tool paths coloured by line type as a slicer previews them"></video>
+    <figcaption><h3>From a part to its tool paths</h3>
+      <p>Reachy Mini's face plate, sliced by CuraEngine at 0.2 mm layers with two walls, 15 % infill and supports
+        under the dome, then played back as a slicer previews it: the first layer slowly, the rest as a time-lapse.</p>
+      <ul class="legend">
+        <li style="--k: #E60000">Outer wall</li><li style="--k: #00E600">Inner wall</li>
+        <li style="--k: #E6E600">Top and bottom skin</li><li style="--k: #E67300">Infill</li>
+        <li style="--k: #00E6E6">Support and skirt</li>
+      </ul>
+      <p class="credit"><a href="https://github.com/pollen-robotics/reachy_mini">Reachy Mini</a> CAD © Pollen Robotics /
+        Hugging Face, licensed <a href="https://creativecommons.org/licenses/by-nc-sa/">CC BY-NC-SA</a>. Sliced and
+        rendered in Blender for AMI; this video is shared under the same licence.</p></figcaption>
+  </figure>
+  <section>
+    <div class="eyebrow">Workflow</div>
+    <h2>Five stages, one project</h2>
+    <p class="intro">Every project runs the same five stages and can be saved, reopened and reported.</p>
+    <div class="stages">
+      <div class="stage" style="--c: var(--c1)"><span class="n">1</span><h3>Define Workflow</h3>
+        <p>The material, the test coupon, the AM method and its parameters, and the KPIs: tensile strength, mass,
+          cost and eight more planned.</p></div>
+      <div class="stage" style="--c: var(--cp)"><span class="n">2</span><h3>Generate Prior Data</h3>
+        <p>Published data, found and extracted by AI agents, and in-house test results, with simulations planned: the
+          priors the models learn from.</p></div>
+      <div class="stage" style="--c: var(--c2)"><span class="n">3</span><h3>Train AI Models</h3>
+        <p>Load a dataset, choose a model, pre-train an ensemble of Gaussian-process regressors, fine-tune, and test on
+          held-out rows.</p></div>
+      <div class="stage" style="--c: var(--c3)"><span class="n">4</span><h3>Deploy AI Models</h3>
+        <p>Predictions with intervals, the spread against measurements, which settings matter most, and the settings
+          that do best.</p></div>
+      <div class="stage" style="--c: var(--c4)"><span class="n">5</span><h3>Write Report</h3>
+        <p>Pick the results to keep and build a PDF report of the project.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Processes</div>
+    <h2>Twelve AM methods, four material classes</h2>
+    <div class="methods">
+      <div class="cat"><h3>Material extrusion</h3><div class="m"><b>FFF / FDM</b> · <b>DIW</b> (robocasting)</div>
+        <div class="cls"><span class="pol">Polymers</span><span class="com">Composites</span><span class="cer">Ceramics</span></div></div>
+      <div class="cat"><h3>Vat photopolymerization</h3><div class="m"><b>SLA</b> · <b>Ceramic DLP</b></div>
+        <div class="cls"><span class="pol">Polymers</span><span class="cer">Ceramics</span></div></div>
+      <div class="cat"><h3>Powder bed fusion</h3><div class="m"><b>SLS</b> · <b>MJF</b> · <b>L-PBF</b> · <b>EB-PBF</b></div>
+        <div class="cls"><span class="pol">Polymers</span><span class="com">Composites</span><span class="met">Metals &amp; alloys</span></div></div>
+      <div class="cat"><h3>Binder jetting</h3><div class="m"><b>Binder jetting</b>, then sintering</div>
+        <div class="cls"><span class="met">Metals &amp; alloys</span><span class="cer">Ceramics</span></div></div>
+      <div class="cat"><h3>Directed energy deposition</h3><div class="m"><b>DED</b>: laser, beam or arc (WAAM)</div>
+        <div class="cls"><span class="met">Metals &amp; alloys</span></div></div>
+      <div class="cat"><h3>Material jetting</h3><div class="m"><b>Material jetting</b> of photopolymers</div>
+        <div class="cls"><span class="pol">Polymers</span></div></div>
+      <div class="cat"><h3>Sheet lamination</h3><div class="m"><b>Ultrasonic AM</b> of metal foils</div>
+        <div class="cls"><span class="met">Metals &amp; alloys</span><span class="com">Composites</span></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Version 0.1</div>
+    <h2>Demo3: CF/PEEK by FFF</h2>
+    <div class="demo">
+      <div class="facts"><h3>Tensile strength from nine print settings</h3>
+        <ul>
+          <li>Nozzle diameter and temperature, printing speed, raster angle, infill, specimen and layer thickness, bed
+            temperature and carbon-fibre fraction.</li>
+          <li>Learned from 232 tensile coupons in 23 published studies of PEEK and CF/PEEK.</li>
+          <li>An ensemble of 100 Gaussian-process regressors, the best picked on validation rows, tested on held-out
+            coupons.</li>
+          <li>Deployed for prediction with intervals, uncertainty, sensitivity and optimization.</li>
+        </ul></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><b>AMI</b> v0.1.3 · Additive Manufacturing Intelligence · University of Washington, Seattle</div>
+    <div>The app runs as a local web server; its source code and datasets are not published here.</div>
+  </div>
+</footer>
+<script>
+  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelectorAll("video[autoplay]").forEach(function (v) { v.removeAttribute("autoplay"); v.pause(); v.controls = true; });
+  }
+</script>
+</body>
+</html>
